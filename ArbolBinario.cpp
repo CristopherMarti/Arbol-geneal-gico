@@ -191,3 +191,144 @@ void mostrarDescendientes(Persona* persona) {
         actual = actual->siguiente;
     }
 }
+
+//--------------------------------------------------------------------
+//  Función principal (menú)
+//--------------------------------------------------------------------
+int main() {
+    setlocale(LC_CTYPE,"Spanish");
+    Persona* raiz = NULL; // Árbol inicialmente vacío
+    int opcion;
+
+    do {
+        // Menú principal
+        cout << "\n=== Gestor de Personas ===\n";
+        cout << "1. Insertar persona\n";
+        cout << "2. Buscar persona\n";
+        cout << "3. Mostrar Preorden\n";
+        cout << "4. Mostrar Inorden\n";
+        cout << "5. Mostrar Postorden\n";
+        cout << "6. Mostrar ancestros\n";
+        cout << "7. Mostrar descendientes\n";
+        cout << "8. Salir\n";
+        cout << "Opción: ";
+        cin >> opcion;
+        cin.ignore(); // Limpiar buffer del salto de línea
+
+        switch (opcion) {
+            // ---------------------------------------------------------
+            case 1: {
+                // === Insertar persona ===
+                int id;
+                string nombre, fecha, genero;
+
+                // ---- Validar que el ID sea positivo y único ----
+                do {
+                    cout << "ID (positivo): ";
+                    cin >> id;
+                    if (id < 0) {
+                        cout << "El ID no puede ser negativo.\n";
+                    } else if (buscarPorID(raiz, id)) {
+                        cout << "Este ID ya existe. Ingrese uno diferente.\n";
+                        id = -1; // Forzar repetición
+                    }
+                } while (id < 0);
+                cin.ignore(); // Consumir salto de línea restante
+
+                // ---- Solicitar nombre (no vacío) ----
+                do {
+                    cout << "Nombre: ";
+                    getline(cin, nombre);
+                    if (nombre.empty()) cout << "El nombre no puede estar vacío.\n";
+                } while (nombre.empty());
+
+                // ---- Solicitar fecha de nacimiento ----
+                do {
+                    cout << "Fecha de nacimiento (ej. 2000-01-01): ";
+                    getline(cin, fecha);
+                    if (fecha.empty()) cout << "La fecha no puede estar vacía.\n";
+                } while (fecha.empty());
+
+                // ---- Solicitar género ----
+                do {
+                    cout << "Género (M/F): ";
+                    getline(cin, genero);
+                    if (genero.empty()) cout << "El género no puede estar vacío.\n";
+                } while (genero.empty());
+
+                // Crear e insertar la nueva persona
+                Persona* nueva = crearPersona(id, nombre, fecha, genero);
+                raiz = insertarPersona(raiz, nueva);
+
+                // Si la persona NO es la raíz (la raíz no tiene padre)
+                if (raiz != nueva) {
+                    int idPadre;
+                    cout << "¿Tiene padre? (Ingrese ID o -1 si no): ";
+                    cin >> idPadre;
+                    if (idPadre != -1) {
+                        Persona* padre = buscarPorID(raiz, idPadre);
+                        if (padre) {
+                            agregarHijo(padre, nueva);
+                        } else {
+                            cout << "Padre no encontrado. Se insertó sin asignar padre.\n";
+                        }
+                    }
+                }
+
+                break;
+            }
+            // ---------------------------------------------------------
+            case 2: {
+                // === Buscar persona ===
+                cout << "Buscar por:\n1. ID\n2. Nombre\nOpción: ";
+                int tipo; cin >> tipo; cin.ignore();
+                if (tipo == 1) {
+                    int id;
+                    cout << "ID: "; cin >> id;
+                    Persona* p = buscarPorID(raiz, id);
+                    if (p) cout << "Encontrado: " << p->nombre << "\n";
+                    else cout << "No encontrado.\n";
+                } else {
+                    string nombre;
+                    cout << "Nombre: "; getline(cin, nombre);
+                    Persona* p = buscarPorNombre(raiz, nombre);
+                    if (p) cout << "Encontrado: " << p->nombre << "\n";
+                    else cout << "No encontrado.\n";
+                }
+                break;
+            }
+            // ---------------------------------------------------------
+            case 3: preorden(raiz); break;
+            case 4: inorden(raiz); break;
+            case 5: postorden(raiz); break;
+
+            // ---------------------------------------------------------
+            case 6: {
+                // === Mostrar ancestros ===
+                int id;
+                cout << "ID de la persona: "; cin >> id;
+                Persona* p = buscarPorID(raiz, id);
+                if (p) mostrarAncestros(p);
+                else cout << "No encontrado.\n";
+                break;
+            }
+            // ---------------------------------------------------------
+            case 7:
+                // === Mostrar descendientes (desde la raíz) ===
+                if (raiz) mostrarDescendientes(raiz);
+                else cout << "Árbol vacío.\n";
+                break;
+
+            // ---------------------------------------------------------
+            case 8: cout << "Saliendo...\n"; break;
+            default: cout << "Opción inválida.\n";
+        }
+
+    } while (opcion != 8);
+
+    // Nota: No se liberan los nodos creados (fuga de memoria). Para un
+    // programa real, se debería implementar una función recursiva que
+    // destruyera el BST y las listas de hijos antes de salir.
+
+    return 0;
+}
