@@ -75,3 +75,70 @@ Persona* crearPersona(int id, const string& nombre, const string& fecha, const s
     p->hijos = NULL;
     return p;
 }
+
+//--------------------------------------------------------------------
+//  insertarPersona (BST)
+//  Inserta recursivamente una nueva persona en el árbol binario de
+//  búsqueda respetando la propiedad de orden por ID. Devuelve la raíz
+//  (que puede cambiar si estaba vacía).
+//--------------------------------------------------------------------
+Persona* insertarPersona(Persona* raiz, Persona* nueva) {
+    if (!raiz) return nueva; // Caso base: subárbol vacío
+
+    if (nueva->id < raiz->id) {
+        // Insertar en el subárbol izquierdo
+        raiz->izq = insertarPersona(raiz->izq, nueva);
+        raiz->izq->padre = raiz; // Actualizar relación padre
+    } else {
+        // Insertar en el subárbol derecho (ID >= raíz->id)
+        raiz->der = insertarPersona(raiz->der, nueva);
+        raiz->der->padre = raiz;
+    }
+    return raiz; // La raíz nunca cambia aquí
+}
+
+//--------------------------------------------------------------------
+//  agregarHijo
+//  Agrega un nodo a la lista de hijos de la persona "padre". No afecta
+//  la posición del hijo dentro del BST; sólo construye la relación
+//  genealógica.
+//--------------------------------------------------------------------
+void agregarHijo(Persona* padre, Persona* hijo) {
+    hijo->padre = padre; // Establecer relación inversa
+
+    // Crear nodo de lista
+    Hijo* nuevo = new Hijo;
+    nuevo->persona = hijo;
+    nuevo->siguiente = NULL;
+
+    // Insertar al final de la lista de hijos
+    if (!padre->hijos) {
+        padre->hijos = nuevo; // Primer hijo
+    } else {
+        Hijo* actual = padre->hijos;
+        while (actual->siguiente) actual = actual->siguiente;
+        actual->siguiente = nuevo;
+    }
+}
+
+//--------------------------------------------------------------------
+//  Buscar persona por ID (BST)
+//--------------------------------------------------------------------
+Persona* buscarPorID(Persona* raiz, int id) {
+    if (!raiz || raiz->id == id) return raiz; // Encontrado o subárbol vacío
+    return (id < raiz->id) ? buscarPorID(raiz->izq, id)  // Buscar en izq
+                           : buscarPorID(raiz->der, id); // Buscar en der
+}
+
+//--------------------------------------------------------------------
+//  Buscar persona por nombre (recorrido inorden completo)
+//  Nota: Complejidad O(n) ya que no existe índice por nombre.
+//--------------------------------------------------------------------
+Persona* buscarPorNombre(Persona* raiz, const string& nombre) {
+    if (!raiz) return NULL;
+    if (raiz->nombre == nombre) return raiz;
+
+    // Buscar primero en el subárbol izquierdo
+    Persona* p = buscarPorNombre(raiz->izq, nombre);
+    return p ? p : buscarPorNombre(raiz->der, nombre); // Si no, en el derecho
+}
