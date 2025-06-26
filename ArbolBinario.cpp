@@ -142,3 +142,52 @@ Persona* buscarPorNombre(Persona* raiz, const string& nombre) {
     Persona* p = buscarPorNombre(raiz->izq, nombre);
     return p ? p : buscarPorNombre(raiz->der, nombre); // Si no, en el derecho
 }
+//--------------------------------------------------------------------
+//  Recorridos clásicos del BST
+//--------------------------------------------------------------------
+void preorden(Persona* nodo) {
+    if (!nodo) return;
+    cout << nodo->nombre << " (ID: " << nodo->id << ")\n";
+    preorden(nodo->izq);
+    preorden(nodo->der);
+}
+
+void inorden(Persona* nodo) {
+    if (!nodo) return;
+    inorden(nodo->izq);
+    cout << nodo->nombre << " (ID: " << nodo->id << ")\n";
+    inorden(nodo->der);
+}
+
+void postorden(Persona* nodo) {
+    if (!nodo) return;
+    postorden(nodo->izq);
+    postorden(nodo->der);
+    cout << nodo->nombre << " (ID: " << nodo->id << ")\n";
+}
+
+//--------------------------------------------------------------------
+//  mostrarAncestros
+//  Imprime en consola la línea ascendente (padres, abuelos, etc.) hasta
+//  la raíz del árbol BST.
+//--------------------------------------------------------------------
+void mostrarAncestros(Persona* persona) {
+    while (persona->padre) {
+        persona = persona->padre;
+        cout << persona->nombre << " (ID: " << persona->id << ")\n";
+    }
+}
+
+//--------------------------------------------------------------------
+//  mostrarDescendientes
+//  Recorrido recursivo preorden sobre la lista de hijos de "persona" y
+//  sus sub-descendientes.
+//--------------------------------------------------------------------
+void mostrarDescendientes(Persona* persona) {
+    Hijo* actual = persona->hijos;
+    while (actual) {
+        cout << actual->persona->nombre << " (ID: " << actual->persona->id << ")\n";
+        mostrarDescendientes(actual->persona); // Recursión en nietos, etc.
+        actual = actual->siguiente;
+    }
+}
