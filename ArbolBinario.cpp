@@ -1,7 +1,7 @@
 //===================================================================
 //  Gestor de Personas (Árbol Genealógico)
 //-------------------------------------------------------------------
-//  Autor: <Tu nombre aquí>
+//  EQUIPO: Grupo 04
 //  Descripción:
 //  Este programa demuestra una estructura de datos mixta para modelar
 //  un árbol genealógico. Las personas se almacenan en un árbol binario
